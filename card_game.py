@@ -12,14 +12,13 @@ CLR_BOLD = "\033[1m"
 CLR_RED = "\033[91m"
 CLR_GREEN = "\033[92m"
 CLR_YELLOW = "\033[93m"
-CLR_BLUE = "\033[94m"
-CLR_MAGENTA = "\033[95m"
 CLR_CYAN = "\033[96m"
+CLR_MAGENTA = "\033[95m"
 CLR_WHITE = "\033[97m"
 CLR_GRAY = "\033[90m"
 
 RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
-SUITS = [("♠", "Spades", CLR_CYAN), ("♥", "Hearts", CLR_RED), ("♦", "Diamonds", CLR_RED), ("♣", "Clubs", CLR_GREEN)]
+SUITS = [("♠ Spades", CLR_CYAN), ("♥ Hearts", CLR_RED), ("♦ Diamonds", CLR_RED), ("♣ Clubs", CLR_GREEN)]
 
 
 def clear_screen():
@@ -27,7 +26,7 @@ def clear_screen():
 
 
 def create_deck():
-    return [(rank, suit_symbol, suit_name, color) for suit_symbol, suit_name, color in SUITS for rank in RANKS]
+    return [f"{rank} of {suit_name}" for suit_name, _ in SUITS for rank in RANKS]
 
 
 def get_number_of_players():
@@ -62,37 +61,12 @@ def distribute_cards(deck, num_players):
     return hands, cards_per_player
 
 
-def format_card_art(rank, symbol, suit_name, color):
-    r = f"{rank:<2}"
-    r_right = f"{rank:>2}"
-    s = symbol
-    return [
-        f"{color}┌─────────┐{CLR_RESET}",
-        f"{color}│ {r}      │{CLR_RESET}",
-        f"{color}│    {s}    │{CLR_RESET}",
-        f"{color}│       {r_right} │{CLR_RESET}",
-        f"{color}└─────────┘{CLR_RESET}",
-    ]
-
-
 def display_round_cards(played_cards):
-    print(f"\n  {CLR_BOLD}{CLR_CYAN}🎴 CARDS PLAYED THIS ROUND:{CLR_RESET}\n")
-
-    cards_art = []
-    player_labels = []
-
-    for player, card_tuple in played_cards.items():
-        rank, symbol, suit_name, color = card_tuple
-        art = format_card_art(rank, symbol, suit_name, color)
-        cards_art.append(art)
-        player_labels.append(f"{CLR_BOLD} Player {player} {CLR_RESET}")
-
-    for line_idx in range(5):
-        line_str = "   " + "   ".join(art[line_idx] for art in cards_art)
-        print(line_str)
-
-    label_str = "   " + "   ".join(f"{lbl:^19}" for lbl in player_labels)
-    print(label_str)
+    print(f"\n  {CLR_BOLD}{CLR_CYAN}Cards played this round:{CLR_RESET}")
+    print(f"  {CLR_GRAY}" + "─" * 38 + f"{CLR_RESET}")
+    for player, card in played_cards.items():
+        print(f"    Player {player}  ──▶  {CLR_BOLD}{CLR_WHITE}{card}{CLR_RESET}")
+    print(f"  {CLR_GRAY}" + "─" * 38 + f"{CLR_RESET}")
 
 
 def display_scoreboard(scores, current_round, total_rounds):
