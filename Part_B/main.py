@@ -1,21 +1,12 @@
-"""
-Part B: Employee Relational Database Executor
------------------------------------------------
-This Python script executes the SQL DDL, DML, and query challenges from employee_database.sql
-using SQLite and displays formatted tabular results for verification.
-"""
-
 import sqlite3
 import os
 import sys
 
-# Configure stdout encoding for Windows console compatibility
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
 
 def print_table(cursor, title):
-    """Utility to print SQL query results formatted in clean ASCII tables."""
     rows = cursor.fetchall()
     columns = [description[0] for description in cursor.description]
     
@@ -27,38 +18,32 @@ def print_table(cursor, title):
         print("  (No records found)")
         return
 
-    # Determine max column widths for pretty formatting
     widths = [len(col) for col in columns]
     for row in rows:
         for i, val in enumerate(row):
             widths[i] = max(widths[i], len(str(val)))
 
-    # Header line
     header_str = " | ".join(f"{col:{widths[i]}}" for i, col in enumerate(columns))
     separator_str = "-+-".join("-" * widths[i] for i in range(len(columns)))
     
     print(header_str)
     print(separator_str)
 
-    # Data rows
     for row in rows:
-        row_str = " | ".join(f"{str(val):{widths[i]}}" for i, val in enumerate(row))
+        row_str = " | ".join(f"{str(val):{widths[i]}}" for i, col in enumerate(row))
         print(row_str)
     print(f"Total records returned: {len(rows)}")
 
 
 def run_database_challenge():
-    # Setup in-memory SQLite database
     conn = sqlite3.connect(":memory:")
     cursor = conn.cursor()
 
     sql_file_path = os.path.join(os.path.dirname(__file__), "employee_database.sql")
 
-    # Read SQL script
     with open(sql_file_path, "r", encoding="utf-8") as f:
         sql_content = f.read()
 
-    # Split and execute setup statements (CREATE and INSERT)
     cursor.executescript("""
     CREATE TABLE Department (
         department_id INTEGER PRIMARY KEY,
@@ -93,35 +78,27 @@ def run_database_challenge():
 
     print("✅ Database initialized and employee records inserted successfully.")
 
-    # 1. Display all employee records
     cursor.execute("SELECT * FROM Employee;")
     print_table(cursor, "Query 1: Display All Employee Records")
 
-    # 2. Display unique department names
     cursor.execute("SELECT DISTINCT department_name FROM Employee;")
     print_table(cursor, "Query 2: Display Unique Department Names")
 
-    # 3. Retrieve employees earning more than ₹50,000
     cursor.execute("SELECT * FROM Employee WHERE salary > 50000;")
     print_table(cursor, "Query 3: Employees Earning More Than ₹50,000")
 
-    # 4. Display employees belonging to a specific department ('IT')
     cursor.execute("SELECT * FROM Employee WHERE department_name = 'IT';")
     print_table(cursor, "Query 4: Employees in IT Department")
 
-    # 5. Retrieve employees whose salary falls between two given values (45,000 and 75,000)
     cursor.execute("SELECT * FROM Employee WHERE salary BETWEEN 45000 AND 75000;")
     print_table(cursor, "Query 5: Employees Earning Between ₹45,000 and ₹75,000")
 
-    # 6. Display employees working in selected departments using IN operator
     cursor.execute("SELECT * FROM Employee WHERE department_name IN ('IT', 'Finance', 'HR');")
     print_table(cursor, "Query 6: Employees in Selected Departments (IT, Finance, HR)")
 
-    # 7. Sort employees by salary in descending order
     cursor.execute("SELECT * FROM Employee ORDER BY salary DESC;")
     print_table(cursor, "Query 7: Employees Sorted by Salary Descending")
 
-    # 8. Retrieve records using multiple conditions with AND, OR, and NOT operators
     cursor.execute("SELECT * FROM Employee WHERE department_name = 'IT' AND salary > 50000 OR NOT department_name = 'HR';")
     print_table(cursor, "Query 8: Multiple Conditions with AND, OR, NOT")
 
